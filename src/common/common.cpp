@@ -169,6 +169,37 @@ QString escapeHtmlSpaces(const QString &str)
             .replace('\n', "<br />");
 }
 
+/**
+ * Returns readable text representation for URI list in data.
+ */
+QString uriListToDisplayText(const QMimeData &data)
+{
+    QByteArray bytes;
+
+    for ( const auto &url : data.urls() ) {
+        if ( !bytes.isEmpty() )
+            bytes += '\n';
+
+#if QT_VERSION < 0x050000
+            auto text = url.toLocalFile().replace('\n', "\\n").toUtf8();
+#else
+            auto text = url.fileName().replace('\n', "\\n").toUtf8();
+#endif
+        if ( text.isEmpty() ) {
+#if QT_VERSION < 0x050000
+            text = url.toString(QUrl::RemovePassword).toUtf8();
+#else
+            text = url.toString(QUrl::DecodeReserved | QUrl::RemovePassword).toUtf8();
+#endif
+            text.replace("%25", "%");
+        }
+
+        bytes += text;
+    }
+
+    return bytes;
+}
+
 QByteArray getUtf8Data(const QMimeData &data, const QString &format)
 {
     if (format == mimeText || format == mimeHtml)
@@ -284,6 +315,13 @@ QVariantMap cloneData(const QMimeData &data, const QStringList &formats)
             return newdata;
         }
 #endif
+
+        // Use more readable display for URI lists.
+        if ( mime == mimeText && data.hasUrls() && !data.hasFormat(mimeText) ) {
+            log( QString("Converting %1 to %2").arg(mimeUriList).arg(mimeText) );
+            newdata.insert( mimeText, uriListToDisplayText(data) );
+            continue;
+        }
 
         const QByteArray bytes = getUtf8Data(data, mime);
         if ( !bytes.isEmpty() ) {
