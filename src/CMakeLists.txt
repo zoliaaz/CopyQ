@@ -99,7 +99,7 @@ endif()
 
 # Qt modules
 if (WITH_QT5)
-    qt5_use_modules(copyq Widgets Network Svg Xml Script ${copyq_Qt5_Modules})
+    qt5_use_modules(copyq Widgets Network Svg Xml Qml ${copyq_Qt5_Modules})
 else()
     set(QT_USE_QTNETWORK TRUE)
     set(QT_USE_QTSVG TRUE)

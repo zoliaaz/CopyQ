@@ -25,11 +25,10 @@
 #include "common/commandstatus.h"
 #include "common/log.h"
 #include "item/itemwidget.h"
-#include "../qt/bytearrayclass.h"
 
 #include <QApplication>
+#include <QJSEngine>
 #include <QObject>
-#include <QScriptEngine>
 
 Q_DECLARE_METATYPE(QByteArray*)
 
@@ -67,7 +66,7 @@ void ScriptableWorker::run()
 
     setCurrentThreadName("Script-" + QString::number(socket->id()));
 
-    QScriptEngine engine;
+    QJSEngine engine;
     ScriptableProxy proxy(m_wnd);
     Scriptable scriptable(&engine, &proxy);
 
