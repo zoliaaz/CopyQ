@@ -22,6 +22,7 @@
 
 #include <QJSValue>
 #include <QObject>
+#include <QVariantMap>
 
 class QByteArray;
 class QJSEngine;
@@ -30,15 +31,43 @@ class ScriptableProxy;
 class Scriptable : public QObject
 {
     Q_OBJECT
-
 public:
     Scriptable(QJSEngine *engine, ScriptableProxy *proxy);
 
     QByteArray fromString(const QJSValue &value);
+    bool toInt(const QJSValue &value, int *number) const;
 
     bool isConnected() const { return m_connected; }
 
+    QJSValue arguments() const;
+    int argumentCount() const;
+    QJSValue argument(int index) const;
+    QString arg(int i, const QString &defaultValue = QString());
+
+    QJSValue throwError(const QString &errorMessage);
+
+    QJSEngine *engine() const { return m_engine; }
+
 public slots:
+    QJSValue version();
+    QJSValue help();
+
+    void show();
+    void showAt();
+    void hide();
+    QJSValue toggle();
+    QJSValue menu();
+    void exit();
+    void disable();
+    void enable();
+    QJSValue monitoring();
+    QJSValue visible();
+    QJSValue focused();
+
+    QJSValue eval();
+
+    QJSValue input();
+
     void onMessageReceived(const QByteArray &bytes, int messageCode);
     void onDisconnected();
 
@@ -47,9 +76,21 @@ signals:
 
 private:
     void executeArguments(const QByteArray &bytes);
+    QJSValue eval(const QString &script, const QString &fileName);
+    QJSValue eval(const QString &script);
+
+    QJSEngine *m_engine;
+    ScriptableProxy *m_proxy;
 
     QJSValue m_input;
     bool m_connected = true;
+
+    QString m_actionName;
+    QVariantMap m_data;
+
+    int m_skipArguments = 0;
+
+    QJSValue m_self;
 };
 
 #endif // SCRIPTABLE_H
