@@ -67,8 +67,9 @@ public slots:
     bool flush();
     bool remove();
 
-protected:
     virtual QFile *self();
+
+protected:
     void setFile(QFile *file);
     QJSEngine *engine() const;
 
